@@ -231,3 +231,7 @@ data/
 .python_history
 .wget-hsts
 .dotnet/
+*.pt
+# 입력, 출력값 없애기
+*.csv
+lightning_logs
