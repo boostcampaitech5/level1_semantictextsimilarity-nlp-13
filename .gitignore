@@ -230,3 +230,4 @@ data/
 .profile
 .python_history
 .wget-hsts
+.dotnet/
