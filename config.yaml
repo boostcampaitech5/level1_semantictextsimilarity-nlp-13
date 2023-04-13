@@ -1,0 +1,21 @@
+model_name: 'klue/roberta-small'
+
+train_setting:
+
+    max_epoch : 10
+    batch_size : 16
+    shuffle : true
+
+    optimizer:
+      type: 'Adam'
+      beta1: 0.9
+      beta2: 0.99
+      init_lr: 1e-5
+
+
+dir:
+
+  train_path: './data/train.csv'
+  dev_path: './data/dev.csv'
+  test_path: './data/dev.csv'
+  predict_path: './data/test.csv'
