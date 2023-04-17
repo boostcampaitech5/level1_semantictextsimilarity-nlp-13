@@ -168,9 +168,9 @@ class Model(pl.LightningModule):
 
 if __name__ == '__main__':
     # 구현에 사용할 모델이 저장된 폴더 이름을 입력받습니다.
-    # 터미널 실행 예시 : python3 run.py --folder_name=2023-04-16_06:38:40 ...
+    # 터미널 실행 예시 : python3 run.py --folder_name=2023-04-16_063840
     parser = argparse.ArgumentParser()
-    parser.add_argument('--folder_name', default="2023-04-16_06:38:40", type=str)
+    parser.add_argument('--folder_name', default="2023-04-16_063840", type=str)
     args = parser.parse_args(args=[])
 
     folder_name = args.folder_name

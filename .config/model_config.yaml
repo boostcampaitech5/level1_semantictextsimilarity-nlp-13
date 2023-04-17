@@ -1,8 +1,8 @@
-model_name: 'klue/roberta-small'
+model_name: 'klue/roberta-base'
 
 parameter: 
-  batch_size: 16
-  max_epoch: 1
+  batch_size: 32
+  max_epoch: 16
   shuffle: True
   learning_rate: 1e-5
 
@@ -11,3 +11,7 @@ path:
   dev: './data/dev.csv'
   test: './data/dev.csv'
   predict: './data/test.csv'
+
+sweep: 
+  isSweep: True
+  sweepCnt: 10
