@@ -235,7 +235,12 @@ data/
 lightning_logs
 .netrc
 .config/wandb/settings
+history
+wandb
+.screenrc
+.viminfo
 
 # 입력, 출력값 없애기
 *.pt
 *.csv
+*.ckpt
