@@ -1,6 +1,6 @@
 import argparse
 import pandas as pd
-
+from smart_pytorch import SMARTLoss
 # tensorboard
 import os
 #from torch.utils.tensorboard import SummaryWriter
@@ -16,6 +16,10 @@ import pytorch_lightning as pl
 #early stopping을 위한 도구
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
+
+
+import torch.optim as optim
+
 
 
 logs_base_dir = 'logs'
@@ -200,7 +204,9 @@ class Model(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
-        return optimizer
+        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)
+        #return optimizer
+        return [optimizer], [scheduler]
 
 
 if __name__ == '__main__':
@@ -208,12 +214,12 @@ if __name__ == '__main__':
     # 터미널 실행 예시 : python3 run.py --batch_size=64 ...
     # 실행 시 '--batch_size=64' 같은 인자를 입력하지 않으면 default 값이 기본으로 실행됩니다
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_name', default='klue/roberta-small', type=str)
+    parser.add_argument('--model_name', default='klue/roberta-base', type=str)
     parser.add_argument('--batch_size', default=16, type=int)
-    parser.add_argument('--max_epoch', default=200, type=int)
+    parser.add_argument('--max_epoch', default=8, type=int)
     parser.add_argument('--shuffle', default=True)
     parser.add_argument('--learning_rate', default=1e-5, type=float)
-    parser.add_argument('--train_path', default='./data/train.csv')
+    parser.add_argument('--train_path', default='./data/train_균형_무작위순서_30퍼.csv')
     parser.add_argument('--dev_path', default='./data/dev.csv')
     parser.add_argument('--test_path', default='./data/dev.csv')
     parser.add_argument('--predict_path', default='./data/test.csv')
@@ -230,7 +236,7 @@ if __name__ == '__main__':
 
 
 
-    early_stopping = EarlyStopping('val_loss')
+    #early_stopping = EarlyStopping('val_loss',patience=3, mode = 'max')
     # tensor 보드
     #logger = TensorBoardLogger(save_dir='logs/')
 
@@ -240,7 +246,8 @@ if __name__ == '__main__':
     trainer = pl.Trainer(accelerator='gpu', max_epochs=args.max_epoch,
                          logger = wandb_logger,
                          log_every_n_steps=1,
-                         callbacks=[early_stopping])
+                        # callbacks = [early_stopping]
+                         )
 
     # Train part
     # 아 fit은 그 뭐냐 훈련시키는거고
@@ -249,21 +256,9 @@ if __name__ == '__main__':
     trainer.test(model=model, datamodule=dataloader)
 
     # 학습이 완료된 모델을 저장합니다.
-    torch.save(model, 'model3.pt')
+    torch.save(model, 'model_reverse_balanced.pt')
     
-    # Inference part
-    # 저장된 모델로 예측을 진행합니다.
-    model = torch.load('model3.pt')
-    predictions = trainer.predict(model=model, datamodule=dataloader)
-
-    # 예측된 결과를 형식에 맞게 반올림하여 준비합니다.
-    predictions = list(round(float(i), 1) for i in torch.cat(predictions))
-
-    #print(predictions)
     
-    # output 형식을 불러와서 예측된 결과로 바꿔주고, output.csv로 출력합니다.
-    output = pd.DataFrame()
-    output['target'] = predictions
-    output.to_csv('./data/sample_submission2.csv', index=False)
+
     
     

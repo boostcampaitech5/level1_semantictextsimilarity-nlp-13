@@ -1,6 +1,10 @@
 import argparse
-
 import pandas as pd
+
+# tensorboard
+import os
+import torch.utils.tensorboard import SummaryWriter
+
 
 from tqdm.auto import tqdm
 
@@ -9,7 +13,11 @@ import torch
 import torchmetrics
 import pytorch_lightning as pl
 
+logs_base_dir = 'logs'
+os.makedirs(logs_base_dir, exist_ok=True)
 
+
+# 데이터 만들어주는 용도
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, inputs, targets=[]):
         self.inputs = inputs
@@ -170,12 +178,12 @@ if __name__ == '__main__':
     # 터미널 실행 예시 : python3 run.py --batch_size=64 ...
     # 실행 시 '--batch_size=64' 같은 인자를 입력하지 않으면 default 값이 기본으로 실행됩니다
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_name', default='klue/roberta-small', type=str)
-    parser.add_argument('--batch_size', default=16, type=int)
-    parser.add_argument('--max_epoch', default=1, type=int)
+    parser.add_argument('--model_name', default='klue/roberta-base', type=str)
+    parser.add_argument('--batch_size', default=32, type=int)
+    parser.add_argument('--max_epoch', default=20, type=int)
     parser.add_argument('--shuffle', default=True)
     parser.add_argument('--learning_rate', default=1e-5, type=float)
-    parser.add_argument('--train_path', default='./data/train.csv')
+    parser.add_argument('--train_path', default='./data/train_double.csv')
     parser.add_argument('--dev_path', default='./data/dev.csv')
     parser.add_argument('--test_path', default='./data/dev.csv')
     parser.add_argument('--predict_path', default='./data/test.csv')
