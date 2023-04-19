@@ -1,17 +1,27 @@
-model_name: 'klue/roberta-base'
+model_name: "klue/roberta-large"
 
-parameter: 
-  batch_size: 32
-  max_epoch: 16
+folder_name: "2023-04-19_015512"
+
+check_point:
+  isCheckpoint: True
+  ckpt_name: "epoch=12-step=15158"
+
+parameter:
+  batch_size: 8
+  max_epoch: 100
   shuffle: True
   learning_rate: 1e-5
+  kfold:
+    isKfold: False
+    split_seed: 12345
+    num_splits: 20
 
 path:
-  train: './data/train.csv'
-  dev: './data/dev.csv'
-  test: './data/dev.csv'
-  predict: './data/test.csv'
+  train: "./data/train.csv"
+  dev: "./data/dev.csv"
+  test: "./data/dev.csv"
+  predict: "./data/test.csv"
 
-sweep: 
-  isSweep: True
-  sweepCnt: 10
+sweep:
+  isSweep: False
+  sweepCnt: 1

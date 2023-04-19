@@ -4,9 +4,10 @@ import os
 from datetime import datetime
 
 import torch
-from model import Dataset, Dataloader, Model
+from model import Dataset, Dataloader, KfoldDataloader, Model
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 
 import wandb
 
@@ -23,7 +24,8 @@ def sweep_train(config=None):
     model = Model(model_config['model_name'], config.lr)
 
     # wandb logger 설정
-    wandb_logger = WandbLogger(project=folder_name)
+    wandb_logger = WandbLogger(
+        project=folder_name, save_dir=f'./history/{folder_name}/')
 
     # gpu가 없으면 accelerator='cpu', 있으면 accelerator='gpu'
     trainer = pl.Trainer(
@@ -45,6 +47,7 @@ if __name__ == '__main__':
     model_parameter = model_config['parameter']
     model_path = model_config['path']
     model_sweep = model_config['sweep']
+    model_kfold = model_parameter['kfold']
 
     # 실험 환경을 저장할 폴더 생성
     now = datetime.now()
@@ -62,14 +65,10 @@ if __name__ == '__main__':
             sweep_config = yaml.safe_load(f)
 
         for key, value in sweep_config['parameters'].items():
-            if 'min' in value:
-                value['min'] = float(value['min'])
-            if 'max' in value:
-                value['max'] = float(value['max'])
-            if 'mu' in value:
-                value['mu'] = float(value['mu'])
-            if 'sigma' in value:
-                value['sigma'] = float(value['sigma'])
+            if key in ['lr']:
+                for k, v in value.items():
+                    if k in ['min', 'max', 'mu', 'sigma']:
+                        value[k] = float(v)
 
         sweep_cnt = 0
         sweep_id = wandb.sweep(
@@ -88,22 +87,63 @@ if __name__ == '__main__':
 
     # sweep 없이 훈련 진행
     else:
-        # dataloader와 model을 생성합니다.
-        dataloader = Dataloader(model_config['model_name'], model_parameter['batch_size'], model_parameter['shuffle'], model_path['train'], model_path['dev'],
-                                model_path['test'], model_path['predict'])
+        # model 생성
         model = Model(model_config['model_name'], float(
             model_parameter['learning_rate']))
 
         # wandb logger 설정
-        wandb_logger = WandbLogger(project=folder_name)
+        wandb_logger = WandbLogger(
+            project=folder_name, save_dir=f'./history/{folder_name}/')
 
-        # gpu가 없으면 accelerator='cpu', 있으면 accelerator='gpu'
-        trainer = pl.Trainer(
-            accelerator='gpu', max_epochs=model_parameter['max_epoch'], logger=wandb_logger, log_every_n_steps=1, default_root_dir=f'./history/{folder_name}/')
+        if model_kfold['isKfold']:
+            # 평균치를 기록할 리스트
+            results = list()
 
-        # Train part
-        trainer.fit(model=model, datamodule=dataloader)
-        trainer.test(model=model, datamodule=dataloader)
+            # num_splits 수 만큼 kfold 수행
+            for k in range(model_kfold['num_splits']):
+                # kfolddataloader를 생성합니다.
+                dataloader = KfoldDataloader(model_config['model_name'], model_parameter['batch_size'], model_parameter['shuffle'], model_path['train'], model_path['dev'],
+                                             model_path['test'], model_path['predict'], k, model_kfold['split_seed'], model_kfold['num_splits'])
+                dataloader.prepare_data()
+                dataloader.setup()
+
+                # gpu가 없으면 accelerator='cpu', 있으면 accelerator='gpu'
+                trainer = pl.Trainer(
+                    accelerator='gpu', max_epochs=model_parameter['max_epoch'], logger=wandb_logger, log_every_n_steps=1, default_root_dir=f'./history/{folder_name}/')
+
+                # Train part
+                trainer.fit(model=model, datamodule=dataloader)
+                score = trainer.test(model=model, datamodule=dataloader)
+
+                results.extend(score)
+
+            # kfold 수행 후 평균 성능 기록
+            result = [x['test_pearson'] for x in results]
+            score = sum(result) / model_kfold['num_splits']
+            result.append(score)
+            wandb_logger.log_text(key='kfold result', columns=[i for i in range(
+                model_kfold['num_splits'])]+['avg'], data=[result])
+
+        else:
+            # dataloader와 model을 생성합니다.
+            dataloader = Dataloader(model_config['model_name'], model_parameter['batch_size'], model_parameter['shuffle'], model_path['train'], model_path['dev'],
+                                    model_path['test'], model_path['predict'])
+            model = Model(model_config['model_name'], float(
+                model_parameter['learning_rate']))
+
+            # wandb logger 설정
+            wandb_logger = WandbLogger(project=folder_name, save_dir=f'./history/{folder_name}/')
+
+            lr_monitor = LearningRateMonitor(logging_interval='step')
+            checkpoint_callback = ModelCheckpoint(dirpath=f'./history/{folder_name}/checkpoints/', save_top_k=2, monitor="val_loss")
+
+            # gpu가 없으면 accelerator='cpu', 있으면 accelerator='gpu'
+            trainer = pl.Trainer(
+                accelerator='gpu', max_epochs=model_parameter['max_epoch'], logger=wandb_logger, log_every_n_steps=1, default_root_dir=f'./history/{folder_name}/', callbacks=[lr_monitor, checkpoint_callback])
+
+            # Train part
+            trainer.fit(model=model, datamodule=dataloader)
+            trainer.test(model=model, datamodule=dataloader)
 
         # 학습이 완료된 모델을 저장합니다.
         torch.save(model, f'./history/{folder_name}/model.pt')
