@@ -1,4 +1,51 @@
-model_name: 'klue/roberta-small'
+
+
+# klue/roberta-large
+# beomi/kcbert-base
+# skt/kobert-base-v1
+# "daekeun-ml/koelectra-small-v3-korsts"
+# model_name: 'textattack/albert-base-v2-STS-B'
+# token_name: 'textattack/albert-base-v2-STS-B'
+
+
+
+
+
+# project_name: 'model_search_19_'
+# model_name: "daekeun-ml/koelectra-small-v3-korsts"
+# token_name: "daekeun-ml/koelectra-small-v3-korsts"
+
+# display_name: '_koelectra-small-v3-korsts_b16_lr5e-5_'
+
+
+# train_setting:
+
+#     max_epoch : 20
+#     batch_size : 16
+#     shuffle : true
+
+#     optimizer:
+#       type: 'Adam'
+#       beta1: 0.9
+#       beta2: 0.99
+#       init_lr: 5e-5
+
+
+# dir:
+
+#   train_path: './data/train.csv'
+#   dev_path: './data/dev.csv'
+#   test_path: './data/dev.csv'
+#   predict_path: './data/test.csv'
+
+
+
+project_name: 'baselinecode_'
+model_name: "monologg/koelectra-base-discriminator"
+# token_name: "klue/roberta-large"
+
+display_name: 'koelectra_ep10_bs16_le5_'
+
 
 train_setting:
 
