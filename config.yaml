@@ -1,0 +1,24 @@
+project_name: 'STS_baseline_'
+model_name: 'klue/roberta-base'
+
+display_name: 'roterta_base_ep20_bs16_le5_translate2_앞뒤순서'
+
+train_setting:
+
+    max_epoch : 20
+    batch_size : 16
+    shuffle : true
+
+    optimizer:
+      type: 'AdamW'
+      beta1: 0.9
+      beta2: 0.99
+      init_lr: 1e-5
+
+
+dir:
+
+  train_path: './data/train_translate_문장2_앞뒤순서.csv'
+  dev_path: './data/dev.csv'
+  test_path: './data/dev.csv'
+  predict_path: './data/test.csv'
