@@ -31,12 +31,12 @@ if __name__ == '__main__':
 
     # gpu가 없으면 accelerator='cpu', 있으면 accelerator='gpu'
     trainer = pl.Trainer(
-        accelerator='cpu', max_epochs=model_parameter['max_epoch'], log_every_n_steps=1, default_root_dir=f'history/{folder_name}/')
+        accelerator='gpu', max_epochs=model_parameter['max_epoch'], log_every_n_steps=1, default_root_dir=f'history/{folder_name}/')
 
     # Inference part
     # 저장된 모델로 예측을 진행합니다.
     if model_ckpt['isCheckpoint']:
-        model = Model.load_from_checkpoint(f'history/{folder_name}/checkpoints/{model_ckpt["ckpt_name"]}.ckpt')
+        model = Model.load_from_checkpoint(f'history/{folder_name}/checkpoints/{model_ckpt["ckpt_type"]}/{model_ckpt["ckpt_name"]}.ckpt')
     else:
         model = torch.load(f'history/{folder_name}/model.pt')
     

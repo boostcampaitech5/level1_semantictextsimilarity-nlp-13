@@ -1,14 +1,17 @@
-model_name: "klue/roberta-large"
+model_name: "klue/roberta-base"
 
-folder_name: "2023-04-19_015512"
+folder_name: "2023-04-20_062342"
+project_name: "2023-04-20_023837"
+display_name: "weighted_focal_huber_loss"
 
 check_point:
   isCheckpoint: True
-  ckpt_name: "epoch=12-step=15158"
+  ckpt_type: "pearson"
+  ckpt_name: "epoch=37-step=22154"
 
 parameter:
-  batch_size: 8
-  max_epoch: 100
+  batch_size: 16
+  max_epoch: 50
   shuffle: True
   learning_rate: 1e-5
   kfold:

@@ -132,14 +132,22 @@ if __name__ == '__main__':
                 model_parameter['learning_rate']))
 
             # wandb logger 설정
-            wandb_logger = WandbLogger(project=folder_name, save_dir=f'./history/{folder_name}/')
+            if model_config['project_name']:
+                wandb_logger = WandbLogger(
+                    project=model_config['project_name'], name=model_config['display_name'], save_dir=f'./history/{folder_name}/')
+            else:
+                wandb_logger = WandbLogger(
+                    project=folder_name, save_dir=f'./history/{folder_name}/')
 
             lr_monitor = LearningRateMonitor(logging_interval='step')
-            checkpoint_callback = ModelCheckpoint(dirpath=f'./history/{folder_name}/checkpoints/', save_top_k=2, monitor="val_loss")
+            checkpoint_callback_loss = ModelCheckpoint(
+                dirpath=f'./history/{folder_name}/checkpoints/loss/', save_top_k=2, monitor="val_loss")
+            checkpoint_callback_pearson = ModelCheckpoint(
+                dirpath=f'./history/{folder_name}/checkpoints/pearson/', save_top_k=2, monitor="val_pearson", mode='max')
 
             # gpu가 없으면 accelerator='cpu', 있으면 accelerator='gpu'
             trainer = pl.Trainer(
-                accelerator='gpu', max_epochs=model_parameter['max_epoch'], logger=wandb_logger, log_every_n_steps=1, default_root_dir=f'./history/{folder_name}/', callbacks=[lr_monitor, checkpoint_callback])
+                accelerator='gpu', max_epochs=model_parameter['max_epoch'], logger=wandb_logger, log_every_n_steps=1, default_root_dir=f'./history/{folder_name}/', callbacks=[lr_monitor, checkpoint_callback_loss, checkpoint_callback_pearson])
 
             # Train part
             trainer.fit(model=model, datamodule=dataloader)

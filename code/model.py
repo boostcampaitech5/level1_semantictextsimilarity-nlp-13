@@ -8,6 +8,7 @@ import torch.optim as optim
 import torchmetrics
 import pytorch_lightning as pl
 from focalloss import *
+from loss import *
 from sklearn.model_selection import KFold
 
 
@@ -231,7 +232,7 @@ class Model(pl.LightningModule):
         self.plm = transformers.AutoModelForSequenceClassification.from_pretrained(
             pretrained_model_name_or_path=model_name, num_labels=1)
         # Loss 계산을 위해 사용될 HuberLoss를 호출합니다.
-        self.loss_func = torch.nn.HuberLoss()
+        self.loss_func = weighted_focal_huber_loss
 
     def forward(self, x):
         x = self.plm(x)['logits']
