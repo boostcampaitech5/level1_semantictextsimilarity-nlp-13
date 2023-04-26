@@ -1,0 +1,11 @@
+method: "random"
+
+metric:
+  name: "val_pearson"
+  goal: "maximize"
+
+parameters:
+  lr:
+    distribution: "uniform"
+    min: 1e-5
+    max: 1e-4

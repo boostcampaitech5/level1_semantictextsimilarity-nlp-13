@@ -1,0 +1,30 @@
+model_name: "klue/roberta-base"
+
+folder_name: "2023-04-20_062342"
+project_name: "2023-04-20_023837"
+display_name: "weighted_focal_huber_loss"
+
+check_point:
+  isCheckpoint: True
+  ckpt_type: "pearson"
+  ckpt_name: "epoch=37-step=22154"
+
+parameter:
+  batch_size: 16
+  max_epoch: 50
+  shuffle: True
+  learning_rate: 1e-5
+  kfold:
+    isKfold: False
+    split_seed: 12345
+    num_splits: 20
+
+path:
+  train: "./data/train.csv"
+  dev: "./data/dev.csv"
+  test: "./data/dev.csv"
+  predict: "./data/test.csv"
+
+sweep:
+  isSweep: False
+  sweepCnt: 1

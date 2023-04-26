@@ -231,7 +231,16 @@ data/
 .python_history
 .wget-hsts
 .dotnet/
-*.pt
-# 입력, 출력값 없애기
-*.csv
+.git-credentials
 lightning_logs
+.netrc
+.config/wandb/settings
+history
+wandb
+.screenrc
+.viminfo
+
+# 입력, 출력값 없애기
+*.pt
+*.csv
+*.ckpt
