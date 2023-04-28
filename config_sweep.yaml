@@ -1,0 +1,24 @@
+program: train.py
+method: random
+name: sweep
+metric:
+  name: val_pearson
+  goal: maximize
+parameters:
+  batch_size:
+    values: [8,16,32]
+  epochs:
+    distribution: int_uniform
+    min: 10
+    max: 20
+  learning_rate:
+    distribution: uniform
+    min: 1e-5
+    max: 0.01
+  optimizer:
+    values: ["adam","adamW"]
+  shuffle:
+    values: ["True"]
+early_terminate:
+    type: 'hyperband'
+    min_iter: 4
