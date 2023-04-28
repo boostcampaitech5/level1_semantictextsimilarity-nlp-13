@@ -154,7 +154,7 @@ level1_semantictextsimilarity-nlp-13
   - 검증: Loss 값이 높은 지점에서는 L1 Loss를 사용하기에 이상치에 robust한 특성이 적용되어 안정적으로 작은 Loss를 향해 수렴하는 모습 확인 가능. Loss 값이 작은 지점에서는 L2 Loss를 사용하기에 모든 지점에서 미분 가능하다는 특성이 적용되어 기존 L1 Loss만을 사용했을 때 train_loss가 0.2근방으로 수렴하던 반면, Huber Loss를 사용한 경우에는 0.02 근방으로 수렴하는 것을 볼 수 있었음. Val_pearson의 경우에도 기본 코드에서 epoch을 40번 수행했을 때 0.9109가 나온 반면, Huber loss를 사용하였더니 0.9154가 측정되어 Huber loss가 성능을 향상시켰음을 확인.
 
 - Auxiliary loss 적용
-  - 가설: 현재 float로 예측 되는 값에 더하여, 0~2.5점수까지는 유사도 class 0, 2.5~5 점수까지는 유사도 class 1로 예측하는 loss를 추가한다면 실수 값의 예측이 명시되는 효과를 기대하였음.
+  - 가설: 현재 float로 예측 되는 값에 더하여, 0에서 2.5점수까지는 유사도 class 0, 2.5에서 5 점수까지는 유사도 class 1로 예측하는 loss를 추가한다면 실수 값의 예측이 명시되는 효과를 기대하였음.
   - BCE loss를 기존의 loss와 weighted sum 방식으로 사용함.
     - loss = w*L1_loss + (1-w)*BCE_loss
     - w의 비율을 바꿔 가며 최적의 w값을 찾는 실험 진행
